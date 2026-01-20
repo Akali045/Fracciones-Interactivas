@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Recurso educativo interactivo para aprender suma de fracciones y fracciones equivalentes mediante manipulación visual">
+    <title>Fracciones Interactivas - Aprende manipulando</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-elevated: #222230;
+            --bg-workspace: #0d0d14;
+            
+            --border-subtle: #2a2a3a;
+            --border-hover: #3a3a4a;
+            
+            --text-primary: #f0f0f5;
+            --text-secondary: #9090a0;
+            --text-muted: #606070;
+            
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            
+            --transition-fast: 150ms ease;
+            --transition-medium: 300ms ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* === UTILIDADES === */
+        .hidden { display: none !important; }
+
+        /* === LAYOUT PRINCIPAL === */
+        .app-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* === PANEL LATERAL === */
+        .sidebar {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 45vh;
+                border-right: none;
+                border-bottom: 1px solid var(--border-subtle);
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .help-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            font-size: 1rem;
+        }
+
+        .help-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .sidebar-content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex: 1;
+        }
+
+        /* === SECCIONES DEL PANEL === */
+        .panel-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        /* Selector de figura */
+        .shape-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .shape-btn {
+            padding: 10px;
+            border: 2px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .shape-btn:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-elevated);
+        }
+
+        .shape-btn.active {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .shape-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Crear figura personalizada */
+        .create-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .divisions-input {
+            flex: 1;
+            padding: 10px 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .divisions-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .create-btn {
+            padding: 10px 16px;
+            background: var(--accent-blue);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .create-btn:hover {
+            background: #2563eb;
+        }
+
+        /* Paleta de piezas */
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .palette-piece {
+            aspect-ratio: 1;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            cursor: grab;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .palette-piece:hover {
+            border-color: var(--border-hover);
+            transform: scale(1.05);
+        }
+
+        .palette-piece:active {
+            cursor: grabbing;
+        }
+
+        .palette-piece svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Acciones */
+        .actions-row {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 16px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Panel de selección */
+        .selection-info {
+            background: var(--bg-elevated);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .selection-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .selection-actions .action-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+
+        /* Pieza seleccionada */
+        .fraction-piece.selected {
+            outline: 3px solid var(--accent-blue);
+            outline-offset: 4px;
+            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5));
+        }
+
+        /* === ÁREA PRINCIPAL === */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        /* Panel de desafío */
+        .challenge-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .challenge-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .challenge-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .challenge-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .challenge-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .challenge-btn.primary {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .challenge-btn.primary:hover {
+            background: #7c3aed;
+        }
+
+        .challenge-btn.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .challenge-btn.secondary:hover {
+            background: var(--border-subtle);
+        }
+
+        .challenge-btn.success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .challenge-btn.success:hover {
+            background: #16a34a;
+        }
+
+        .challenge-question {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .challenge-hint {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        /* Espacio de trabajo */
+        .workspace-container {
+            flex: 1;
+            background: var(--bg-workspace);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        #workspace {
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, var(--border-subtle) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .fraction-piece {
+            cursor: grab;
+            transition: filter var(--transition-fast);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .fraction-piece:hover {
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+        }
+
+        .fraction-piece:active {
+            cursor: grabbing;
+        }
+
+        .fraction-piece text {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            fill: white;
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Zona de eliminación */
+        .trash-zone {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 60px;
+            height: 60px;
+            background: var(--bg-elevated);
+            border: 2px dashed var(--border-subtle);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-medium);
+            color: var(--text-muted);
+        }
+
+        .trash-zone.active {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--accent-red);
+            border-style: solid;
+            color: var(--accent-red);
+            transform: scale(1.1);
+        }
+
+        .trash-zone svg {
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+        }
+
+        /* Feedback de combinación */
+        .combine-feedback {
+            position: absolute;
+            pointer-events: none;
+            animation: combinePulse 0.6s ease-out forwards;
+        }
+
+        @keyframes combinePulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* === MODALES === */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .modal-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-btn.primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .modal-btn.danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .modal-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .modal-btn.ghost {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.ghost:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        /* Tutorial */
+        .tutorial-step {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .tutorial-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .tutorial-number {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .tutorial-content h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .tutorial-content p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            z-index: 200;
+            opacity: 0;
+            transition: all var(--transition-medium);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .toast.error {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* === SVG PATTERNS === */
+        .patterns-svg {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Patterns -->
+    <svg class="patterns-svg">
+        <defs>
+            <pattern id="pattern-2" patternUnits="userSpaceOnUse" width="8" height="8">
+                <path d="M 0,8 l 8,-8 M -2,2 l 4,-4 M 6,10 l 4,-4" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            </pattern>
+            <pattern id="pattern-3" patternUnits="userSpaceOnUse" width="6" height="6">
+                <circle cx="3" cy="3" r="1.5" fill="rgba(255,255,255,0.35)"/>
+            </pattern>
+            <pattern id="pattern-4" patternUnits="userSpaceOnUse" width="8" height="8">
+                <path d="M 4,0 V 8 M 0,4 H 8" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            </pattern>
+            <pattern id="pattern-5" patternUnits="userSpaceOnUse" width="6" height="6">
+                <rect x="1" y="1" width="4" height="4" fill="rgba(255,255,255,0.25)"/>
+            </pattern>
+            <pattern id="pattern-6" patternUnits="userSpaceOnUse" width="6" height="6">
+                <path d="M 0,0 l 6,6 M 6,0 l -6,6" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            </pattern>
+            <pattern id="pattern-8" patternUnits="userSpaceOnUse" width="4" height="4">
+                <circle cx="2" cy="2" r="1" fill="rgba(255,255,255,0.3)"/>
+            </pattern>
+            <pattern id="pattern-default" patternUnits="userSpaceOnUse" width="4" height="4">
+                <rect width="4" height="4" fill="rgba(255,255,255,0.1)"/>
+            </pattern>
+        </defs>
+    </svg>
+
+    <div class="app-layout">
+        <!-- Panel lateral -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">½</div>
+                    <span class="logo-text">Fracciones</span>
+                </div>
+                <button class="help-btn" id="helpBtn" title="Cómo usar">?</button>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="panel-section">
+                    <div class="section-title">Tipo de figura</div>
+                    <div class="shape-selector">
+                        <button class="shape-btn active" data-shape="circle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                            </svg>
+                            Círculo
+                        </button>
+                        <button class="shape-btn" data-shape="square">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            </svg>
+                            Barra
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="section-title">Crear figura (2-12 partes)</div>
+                    <div class="create-row">
+                        <input type="number" class="divisions-input" id="divisionsInput" min="2" max="12" value="4" aria-label="Número de divisiones">
+                        <button class="create-btn" id="createBtn">Crear</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="section-title">Piezas rápidas</div>
+                    <div class="palette-grid" id="palette"></div>
+                </div>
+
+                <div class="panel-section" id="selectionPanel" style="display: none;">
+                    <div class="section-title">Pieza seleccionada</div>
+                    <div class="selection-info">
+                        <span id="selectedPieceInfo">-</span>
+                    </div>
+                    <div class="selection-actions">
+                        <button class="action-btn" id="separateBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 6H4a2 2 0 00-2 2v10a2 2 0 002 2h4M16 6h4a2 2 0 012 2v10a2 2 0 01-2 2h-4M12 2v20"/>
+                            </svg>
+                            Separar
+                        </button>
+                        <button class="action-btn danger" id="deleteSelectedBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <button class="action-btn danger" id="clearBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Limpiar todo
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área principal -->
+        <main class="main-area">
+            <div class="challenge-panel">
+                <div class="challenge-header">
+                    <div class="challenge-title">
+                        <span>✨</span> Desafío
+                    </div>
+                    <div class="challenge-actions">
+                        <button class="challenge-btn secondary" id="newProblemBtn">Nuevo problema</button>
+                        <button class="challenge-btn secondary" id="hintBtn">💡 Pista</button>
+                        <button class="challenge-btn success" id="checkBtn">Verificar</button>
+                    </div>
+                </div>
+                <p class="challenge-question" id="questionText">Cargando problema...</p>
+                <div class="challenge-hint hidden" id="hintBox"></div>
+            </div>
+
+            <div class="workspace-container">
+                <svg id="workspace"></svg>
+                <div class="trash-zone" id="trashZone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de ayuda -->
+    <div class="modal-overlay hidden" id="helpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">¿Cómo usar?</h2>
+                <button class="modal-close" id="helpModalClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tutorial-step">
+                    <div class="tutorial-number">1</div>
+                    <div class="tutorial-content">
+                        <h4>Arrastra piezas al área de trabajo</h4>
+                        <p>Usa las piezas rápidas o crea figuras con el número de partes que necesites.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="tutorial-number">2</div>
+                    <div class="tutorial-content">
+                        <h4>Combina fracciones</h4>
+                        <p>Arrastra una pieza sobre otra del mismo tipo para sumarlas. Se unirán automáticamente.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="tutorial-number">3</div>
+                    <div class="tutorial-content">
+                        <h4>Separa piezas combinadas</h4>
+                        <p>Toca una pieza para seleccionarla. Si está combinada, usa el botón "Separar" en el panel izquierdo.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="tutorial-number">4</div>
+                    <div class="tutorial-content">
+                        <h4>Elimina piezas</h4>
+                        <p>Arrastra cualquier pieza a la zona de basura (esquina inferior derecha) para eliminarla.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="tutorial-number">5</div>
+                    <div class="tutorial-content">
+                        <h4>Resuelve el desafío</h4>
+                        <p>Usa las piezas para representar la fracción que pide el problema y verifica tu respuesta.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="helpModalOk">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal-overlay hidden" id="confirmModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="confirmTitle">Confirmar</h2>
+                <button class="modal-close" id="confirmModalClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">¿Estás seguro?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn ghost" id="confirmCancel">Cancelar</button>
+                <button class="modal-btn danger" id="confirmOk">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ==========================================
+            // BANCO DE PROBLEMAS
+            // ==========================================
+            const PROBLEMS = [
+                // Sumas simples
+                { question: "Ana comió 1/4 de pizza y su hermano comió 2/4. ¿Cuánta pizza comieron entre los dos?", answer: 3/4 },
+                { question: "Pedro pintó 1/3 de una pared y luego pintó otro 1/3. ¿Qué fracción de la pared ha pintado?", answer: 2/3 },
+                { question: "María tiene 1/2 litro de jugo y compra 1/2 litro más. ¿Cuánto jugo tiene ahora?", answer: 1 },
+                { question: "En una carrera, Juan corrió 2/6 del camino y luego corrió 3/6 más. ¿Qué fracción del camino ha recorrido?", answer: 5/6 },
+                { question: "Sofía leyó 1/4 de un libro el lunes y 1/4 el martes. ¿Qué parte del libro ha leído?", answer: 2/4 },
+                
+                // Con diferentes denominadores
+                { question: "Carlos comió 1/2 de un pastel y su amigo comió 1/4. ¿Cuánto pastel comieron juntos?", answer: 3/4 },
+                { question: "En un jardín, 1/3 son rosas y 1/6 son tulipanes. ¿Qué fracción del jardín ocupan estas flores?", answer: 1/2 },
+                { question: "Laura caminó 1/2 km por la mañana y 1/4 km por la tarde. ¿Cuánto caminó en total?", answer: 3/4 },
+                { question: "Un tanque tiene 1/3 de agua y le agregan 1/6 más. ¿Qué fracción del tanque está llena?", answer: 1/2 },
+                { question: "Diego hizo 1/4 de su tarea y después completó 1/2 más. ¿Qué fracción de la tarea ha terminado?", answer: 3/4 },
+                
+                // Fracciones que dan impropias o 1 entero
+                { question: "Marta usó 3/4 de taza de harina y luego agregó 2/4 más. ¿Cuánta harina usó en total?", answer: 5/4 },
+                { question: "Roberto corrió 2/3 de una vuelta y luego corrió 2/3 más. ¿Cuántas vueltas corrió?", answer: 4/3 },
+                { question: "Elena bebió 3/4 de un vaso de agua y después bebió 1/4 más. ¿Cuánta agua bebió?", answer: 1 },
+                { question: "Un chef usó 2/3 de un limón y luego usó 1/3 más. ¿Cuántos limones usó?", answer: 1 },
+                { question: "Paula leyó 1/2 libro ayer y 3/4 de libro hoy. ¿Cuánto ha leído en total?", answer: 5/4 },
+                
+                // Representación simple
+                { question: "Representa la fracción 3/4 usando las piezas.", answer: 3/4 },
+                { question: "Usa las piezas para mostrar 2/3.", answer: 2/3 },
+                { question: "Representa 5/6 en el área de trabajo.", answer: 5/6 },
+                { question: "Muestra la fracción 1/2 usando cualquier tipo de pieza.", answer: 1/2 },
+                { question: "Representa 4/4 (un entero) usando las piezas.", answer: 1 },
+                
+                // Equivalencias
+                { question: "Muestra que 2/4 es igual a 1/2 usando piezas de ambos tipos.", answer: 1/2 },
+                { question: "Representa 2/6, que es equivalente a 1/3.", answer: 1/3 },
+                { question: "Usa piezas para mostrar que 3/6 = 1/2.", answer: 1/2 },
+            ];
+
+            const HINTS = {
+                "1/2": "Piensa en algo dividido en 2 partes iguales. ¿Cuántas partes necesitas?",
+                "1/3": "Si algo se divide en 3 partes iguales, 1/3 es solo una de esas partes.",
+                "1/4": "Un cuarto es como dividir algo en 4 pedazos iguales y tomar uno.",
+                "2/3": "Necesitas 2 piezas de 1/3 cada una.",
+                "2/4": "Dos cuartos... ¿puedes simplificarlo? Es igual a otra fracción más simple.",
+                "3/4": "Tres de cuatro partes. ¡Ya casi es el entero completo!",
+                "5/6": "Necesitas 5 piezas de 1/6. Solo te falta una para completar el entero.",
+                "1": "Un entero completo. Puedes formarlo con 2/2, 3/3, 4/4...",
+                "5/4": "Esta fracción es mayor que 1. Necesitas un entero completo más 1/4 adicional.",
+                "4/3": "Es más que 1 entero. Forma 3/3 (un entero) y agrega 1/3 más.",
+                "default": "Recuerda: puedes combinar piezas arrastrando una sobre otra del mismo tipo."
+            };
+
+            // ==========================================
+            // ESTADO Y CONFIGURACIÓN
+            // ==========================================
+            const SVG_NS = 'http://www.w3.org/2000/svg';
+            const state = {
+                selectedShape: 'circle',
+                selectedElement: null,
+                selectedPieceId: null, // Para selección por toque
+                offset: { x: 0, y: 0 },
+                pieceIdCounter: 0,
+                activePieces: new Map(),
+                currentProblem: null,
+                currentProblemIndex: -1,
+                COMBINE_THRESHOLD: 50,
+                STANDARD_RADIUS: { circle: 60, square: 100 }, // Tamaños estándar
+            };
+
+            const COLORS = [
+                'hsl(220, 70%, 55%)',  // Azul
+                'hsl(150, 60%, 45%)',  // Verde
+                'hsl(280, 60%, 55%)',  // Púrpura
+                'hsl(25, 80%, 55%)',   // Naranja
+                'hsl(340, 70%, 55%)',  // Rosa
+                'hsl(180, 60%, 45%)',  // Turquesa
+            ];
+
+            // ==========================================
+            // ELEMENTOS DEL DOM
+            // ==========================================
+            const ui = {
+                workspace: document.getElementById('workspace'),
+                palette: document.getElementById('palette'),
+                trashZone: document.getElementById('trashZone'),
+                divisionsInput: document.getElementById('divisionsInput'),
+                createBtn: document.getElementById('createBtn'),
+                clearBtn: document.getElementById('clearBtn'),
+                helpBtn: document.getElementById('helpBtn'),
+                questionText: document.getElementById('questionText'),
+                newProblemBtn: document.getElementById('newProblemBtn'),
+                hintBtn: document.getElementById('hintBtn'),
+                hintBox: document.getElementById('hintBox'),
+                checkBtn: document.getElementById('checkBtn'),
+                helpModal: document.getElementById('helpModal'),
+                helpModalClose: document.getElementById('helpModalClose'),
+                helpModalOk: document.getElementById('helpModalOk'),
+                confirmModal: document.getElementById('confirmModal'),
+                confirmTitle: document.getElementById('confirmTitle'),
+                confirmMessage: document.getElementById('confirmMessage'),
+                confirmModalClose: document.getElementById('confirmModalClose'),
+                confirmCancel: document.getElementById('confirmCancel'),
+                confirmOk: document.getElementById('confirmOk'),
+                toast: document.getElementById('toast'),
+                shapeBtns: document.querySelectorAll('.shape-btn'),
+                // Nuevos elementos para selección
+                selectionPanel: document.getElementById('selectionPanel'),
+                selectedPieceInfo: document.getElementById('selectedPieceInfo'),
+                separateBtn: document.getElementById('separateBtn'),
+                deleteSelectedBtn: document.getElementById('deleteSelectedBtn'),
+            };
+
+            // ==========================================
+            // UTILIDADES
+            // ==========================================
+            const gcd = (a, b) => b ? gcd(b, a % b) : a;
+            const lcm = (a, b) => (a * b) / gcd(a, b);
+
+            function getPattern(den) {
+                const patterns = [2, 3, 4, 5, 6, 8];
+                return patterns.includes(den) ? `url(#pattern-${den})` : 'url(#pattern-default)';
+            }
+
+            function blendColors(hsl1, hsl2) {
+                const parse = str => str.match(/[\d.]+/g).map(Number);
+                const [h1, s1, l1] = parse(hsl1);
+                const [h2, s2, l2] = parse(hsl2);
+                const s = (s1 + s2) / 2;
+                const l = (l1 + l2) / 2;
+                const a1 = h1 * Math.PI / 180;
+                const a2 = h2 * Math.PI / 180;
+                let h = Math.atan2(Math.sin(a1) + Math.sin(a2), Math.cos(a1) + Math.cos(a2)) * 180 / Math.PI;
+                if (h < 0) h += 360;
+                return `hsl(${h}, ${s}%, ${l}%)`;
+            }
+
+            function polarToCartesian(cx, cy, r, angle) {
+                const rad = (angle - 90) * Math.PI / 180;
+                return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+            }
+
+            function showToast(message, type = 'default') {
+                ui.toast.textContent = message;
+                ui.toast.className = 'toast show ' + type;
+                setTimeout(() => ui.toast.classList.remove('show'), 3000);
+            }
+
+            function showConfirm(title, message, onConfirm) {
+                ui.confirmTitle.textContent = title;
+                ui.confirmMessage.textContent = message;
+                ui.confirmModal.classList.remove('hidden');
+                
+                const handleConfirm = () => {
+                    ui.confirmModal.classList.add('hidden');
+                    onConfirm();
+                    cleanup();
+                };
+                
+                const handleCancel = () => {
+                    ui.confirmModal.classList.add('hidden');
+                    cleanup();
+                };
+                
+                const cleanup = () => {
+                    ui.confirmOk.removeEventListener('click', handleConfirm);
+                    ui.confirmCancel.removeEventListener('click', handleCancel);
+                    ui.confirmModalClose.removeEventListener('click', handleCancel);
+                };
+                
+                ui.confirmOk.addEventListener('click', handleConfirm);
+                ui.confirmCancel.addEventListener('click', handleCancel);
+                ui.confirmModalClose.addEventListener('click', handleCancel);
+            }
+
+            // ==========================================
+            // PROBLEMAS
+            // ==========================================
+            function loadNewProblem() {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * PROBLEMS.length);
+                } while (newIndex === state.currentProblemIndex && PROBLEMS.length > 1);
+                
+                state.currentProblemIndex = newIndex;
+                state.currentProblem = PROBLEMS[newIndex];
+                ui.questionText.textContent = state.currentProblem.question;
+                ui.hintBox.classList.add('hidden');
+            }
+
+            function showHint() {
+                if (!state.currentProblem) return;
+                
+                const answer = state.currentProblem.answer;
+                let hintKey = 'default';
+                
+                // Buscar hint específico
+                for (const key of Object.keys(HINTS)) {
+                    if (key === 'default') continue;
+                    const [num, den] = key.includes('/') ? key.split('/').map(Number) : [Number(key), 1];
+                    if (Math.abs(num / den - answer) < 0.001) {
+                        hintKey = key;
+                        break;
+                    }
+                }
+                
+                ui.hintBox.textContent = '💡 ' + HINTS[hintKey];
+                ui.hintBox.classList.remove('hidden');
+            }
+
+            function checkAnswer() {
+                if (!state.currentProblem) {
+                    showToast('Genera un problema primero', 'error');
+                    return;
+                }
+                
+                let totalValue = 0;
+                state.activePieces.forEach(p => totalValue += p.data.value);
+                
+                const target = state.currentProblem.answer;
+                
+                if (Math.abs(totalValue - target) < 0.001) {
+                    showToast('🎉 ¡Correcto! ¡Excelente trabajo!', 'success');
+                } else if (totalValue === 0) {
+                    showToast('Arrastra algunas piezas al área de trabajo', 'error');
+                } else {
+                    const totalFrac = decimalToFraction(totalValue);
+                    const targetFrac = decimalToFraction(target);
+                    showToast(`Tienes ${totalFrac}, pero necesitas ${targetFrac}. ¡Sigue intentando!`, 'error');
+                }
+            }
+
+            function decimalToFraction(decimal) {
+                if (decimal === 1) return '1 entero';
+                if (decimal === 0) return '0';
+                
+                const tolerance = 0.0001;
+                for (let den = 1; den <= 12; den++) {
+                    const num = Math.round(decimal * den);
+                    if (Math.abs(num / den - decimal) < tolerance) {
+                        return `${num}/${den}`;
+                    }
+                }
+                return decimal.toFixed(2);
+            }
+
+            // ==========================================
+            // SELECCIÓN DE PIEZAS
+            // ==========================================
+            function selectPiece(pieceId) {
+                // Deseleccionar anterior
+                if (state.selectedPieceId) {
+                    const prevPiece = state.activePieces.get(state.selectedPieceId);
+                    if (prevPiece) {
+                        prevPiece.element.classList.remove('selected');
+                    }
+                }
+
+                state.selectedPieceId = pieceId;
+                
+                if (pieceId) {
+                    const piece = state.activePieces.get(pieceId);
+                    if (piece) {
+                        piece.element.classList.add('selected');
+                        ui.selectedPieceInfo.textContent = `${piece.data.numerator}/${piece.data.denominator}`;
+                        ui.selectionPanel.style.display = 'block';
+                        
+                        // Mostrar/ocultar botón separar según si se puede
+                        const canSeparate = piece.data.components && piece.data.components.length > 1;
+                        ui.separateBtn.disabled = !canSeparate;
+                        ui.separateBtn.style.opacity = canSeparate ? '1' : '0.5';
+                    }
+                } else {
+                    ui.selectionPanel.style.display = 'none';
+                }
+            }
+
+            function deselectPiece() {
+                selectPiece(null);
+            }
+
+            // ==========================================
+            // CREACIÓN DE PIEZAS SVG
+            // ==========================================
+            function getArcPath(cx, cy, r, startAngle, endAngle) {
+                if (Math.abs(endAngle - startAngle) >= 360) {
+                    return `M ${cx - r},${cy} a ${r},${r} 0 1,0 ${r * 2},0 a ${r},${r} 0 1,0 -${r * 2},0`;
+                }
+                const start = polarToCartesian(cx, cy, r, endAngle);
+                const end = polarToCartesian(cx, cy, r, startAngle);
+                const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+                return `M ${cx},${cy} L ${start.x},${start.y} A ${r},${r} 0 ${largeArc} 0 ${end.x},${end.y} Z`;
+            }
+
+            function createPieceElement(pieceData) {
+                const group = document.createElementNS(SVG_NS, 'g');
+                group.id = pieceData.id;
+                group.classList.add('fraction-piece');
+                group.setAttribute('tabindex', '0');
+                group.setAttribute('role', 'button');
+                group.setAttribute('aria-label', `Fracción ${pieceData.numerator}/${pieceData.denominator}`);
+
+                const path = document.createElementNS(SVG_NS, 'path');
+                path.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('fill', pieceData.color);
+
+                const patternPath = document.createElementNS(SVG_NS, 'path');
+                patternPath.setAttribute('fill', getPattern(pieceData.denominator));
+                patternPath.setAttribute('stroke', 'none');
+
+                const text = document.createElementNS(SVG_NS, 'text');
+                text.setAttribute('font-size', pieceData.radius / (pieceData.shape === 'circle' ? 3 : 2.5));
+
+                if (pieceData.shape === 'circle') {
+                    const angleStep = 360 / pieceData.denominator;
+                    const endAngle = pieceData.numerator * angleStep;
+                    const d = getArcPath(pieceData.radius, pieceData.radius, pieceData.radius, 0, endAngle);
+                    path.setAttribute('d', d);
+                    patternPath.setAttribute('d', d);
+                    const textPos = polarToCartesian(pieceData.radius, pieceData.radius, pieceData.radius * 0.55, endAngle / 2);
+                    text.setAttribute('x', textPos.x);
+                    text.setAttribute('y', textPos.y);
+                } else {
+                    const pieceWidth = (pieceData.numerator / pieceData.denominator) * pieceData.radius * 2;
+                    const height = pieceData.radius * 0.5;
+                    const d = `M 0 0 H ${pieceWidth} V ${height} H 0 Z`;
+                    path.setAttribute('d', d);
+                    patternPath.setAttribute('d', d);
+                    text.setAttribute('x', pieceWidth / 2);
+                    text.setAttribute('y', height / 2);
+                }
+
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.textContent = `${pieceData.numerator}/${pieceData.denominator}`;
+
+                group.append(path, patternPath, text);
+                return group;
+            }
+
+            // ==========================================
+            // LÓGICA DE PIEZAS
+            // ==========================================
+            function createNewPiece(numerator, denominator, shape, radius, color, x, y, components = null) {
+                state.pieceIdCounter++;
+                const pieceData = {
+                    id: `piece-${state.pieceIdCounter}`,
+                    numerator,
+                    denominator,
+                    shape,
+                    radius,
+                    color,
+                    value: numerator / denominator,
+                    components: components || [{ numerator, denominator, color, radius, shape }]
+                };
+
+                const element = createPieceElement(pieceData);
+                element.setAttribute('transform', `translate(${x}, ${y})`);
+                ui.workspace.appendChild(element);
+                state.activePieces.set(pieceData.id, { element, data: pieceData });
+                
+                return pieceData;
+            }
+
+            function deletePiece(element) {
+                if (!element) return;
+                // Deseleccionar si esta pieza estaba seleccionada
+                if (state.selectedPieceId === element.id) {
+                    deselectPiece();
+                }
+                state.activePieces.delete(element.id);
+                element.remove();
+            }
+
+            function dropPiece(movedElement) {
+                const movedPiece = state.activePieces.get(movedElement.id);
+                if (!movedPiece) return;
+
+                const movedMatrix = movedElement.transform.baseVal.getItem(0).matrix;
+                
+                // Verificar límites del área de trabajo para no perder piezas
+                const wsRect = ui.workspace.getBoundingClientRect();
+                const margin = 20;
+                let newX = movedMatrix.e;
+                let newY = movedMatrix.f;
+                
+                // Ajustar si está fuera de límites
+                if (newX < margin) newX = margin;
+                if (newY < margin) newY = margin;
+                if (newX > wsRect.width - margin - 50) newX = wsRect.width - margin - 50;
+                if (newY > wsRect.height - margin - 50) newY = wsRect.height - margin - 50;
+                
+                // Si se movió, actualizar posición
+                if (newX !== movedMatrix.e || newY !== movedMatrix.f) {
+                    movedElement.setAttribute('transform', `translate(${newX}, ${newY})`);
+                }
+
+                for (const [otherId, otherPiece] of state.activePieces.entries()) {
+                    if (otherId === movedElement.id) continue;
+                    if (otherPiece.data.shape !== movedPiece.data.shape) continue;
+
+                    const otherMatrix = otherPiece.element.transform.baseVal.getItem(0).matrix;
+                    const distance = Math.hypot(newX - otherMatrix.e, newY - otherMatrix.f);
+
+                    if (distance < state.COMBINE_THRESHOLD) {
+                        const totalValue = movedPiece.data.value + otherPiece.data.value;
+                        
+                        if (totalValue > 1.0001) {
+                            showToast('No puedes combinar: excede 1 entero', 'error');
+                            return;
+                        }
+
+                        // Calcular nueva fracción
+                        const d1 = movedPiece.data.denominator;
+                        const d2 = otherPiece.data.denominator;
+                        const commonDen = lcm(d1, d2);
+                        const n1 = movedPiece.data.numerator * (commonDen / d1);
+                        const n2 = otherPiece.data.numerator * (commonDen / d2);
+                        const newNum = n1 + n2;
+                        const divisor = gcd(newNum, commonDen);
+                        const finalNum = newNum / divisor;
+                        const finalDen = commonDen / divisor;
+                        
+                        const newColor = blendColors(movedPiece.data.color, otherPiece.data.color);
+                        const combinedX = (newX + otherMatrix.e) / 2;
+                        const combinedY = (newY + otherMatrix.f) / 2;
+                        const newComponents = [...movedPiece.data.components, ...otherPiece.data.components];
+
+                        // Usar tamaño estándar para la pieza combinada
+                        const standardRadius = state.STANDARD_RADIUS[movedPiece.data.shape];
+
+                        // Eliminar piezas originales
+                        movedPiece.element.remove();
+                        otherPiece.element.remove();
+                        state.activePieces.delete(movedElement.id);
+                        state.activePieces.delete(otherId);
+                        
+                        // Deseleccionar si alguna estaba seleccionada
+                        if (state.selectedPieceId === movedElement.id || state.selectedPieceId === otherId) {
+                            deselectPiece();
+                        }
+
+                        // Crear pieza combinada con tamaño estándar
+                        createNewPiece(finalNum, finalDen, movedPiece.data.shape, standardRadius, newColor, combinedX, combinedY, newComponents);
+                        
+                        showToast(`¡Combinado! ${n1}/${commonDen} + ${n2}/${commonDen} = ${finalNum}/${finalDen}`, 'success');
+                        return;
+                    }
+                }
+            }
+
+            function separatePiece(element) {
+                if (!element) return;
+                const piece = state.activePieces.get(element.id);
+                if (!piece || !piece.data.components || piece.data.components.length <= 1) {
+                    showToast('Esta pieza no se puede separar', 'error');
+                    return;
+                }
+
+                const { components, shape } = piece.data;
+                const matrix = piece.element.transform.baseVal.getItem(0).matrix;
+                const standardRadius = state.STANDARD_RADIUS[shape];
+
+                // Deseleccionar antes de eliminar
+                deselectPiece();
+                
+                piece.element.remove();
+                state.activePieces.delete(element.id);
+
+                components.forEach((comp, i) => {
+                    const angle = (360 / components.length) * i;
+                    const pos = polarToCartesian(matrix.e, matrix.f, 60, angle);
+                    // Usar tamaño estándar para las piezas separadas
+                    createNewPiece(comp.numerator, comp.denominator, comp.shape, standardRadius, comp.color, pos.x, pos.y, [comp]);
+                });
+
+                showToast(`Pieza separada en ${components.length} partes`, 'success');
+            }
+            
+            function separateSelectedPiece() {
+                if (!state.selectedPieceId) {
+                    showToast('Selecciona una pieza primero', 'error');
+                    return;
+                }
+                const piece = state.activePieces.get(state.selectedPieceId);
+                if (piece) {
+                    separatePiece(piece.element);
+                }
+            }
+            
+            function deleteSelectedPiece() {
+                if (!state.selectedPieceId) {
+                    showToast('Selecciona una pieza primero', 'error');
+                    return;
+                }
+                const piece = state.activePieces.get(state.selectedPieceId);
+                if (piece) {
+                    deletePiece(piece.element);
+                    deselectPiece();
+                }
+            }
+
+            function clearWorkspace() {
+                deselectPiece();
+                state.activePieces.forEach(piece => piece.element.remove());
+                state.activePieces.clear();
+                showToast('Área de trabajo limpiada', 'success');
+            }
+
+            // ==========================================
+            // DRAG & DROP
+            // ==========================================
+            function getMousePosition(evt) {
+                const CTM = ui.workspace.getScreenCTM();
+                const clientX = evt.clientX ?? evt.touches?.[0]?.clientX;
+                const clientY = evt.clientY ?? evt.touches?.[0]?.clientY;
+                return {
+                    x: (clientX - CTM.e) / CTM.a,
+                    y: (clientY - CTM.f) / CTM.d
+                };
+            }
+
+            function startDrag(evt) {
+                let target = evt.target.closest('.fraction-piece');
+                if (!target) {
+                    // Si tocó el workspace pero no una pieza, deseleccionar
+                    if (evt.target === ui.workspace || evt.target.closest('#workspace')) {
+                        deselectPiece();
+                    }
+                    return;
+                }
+                
+                evt.preventDefault();
+
+                // Si viene de la paleta, crear nueva pieza
+                const paletteItem = target.closest('.palette-piece');
+                if (paletteItem) {
+                    const info = JSON.parse(paletteItem.dataset.info);
+                    const wsRect = ui.workspace.getBoundingClientRect();
+                    const itemRect = paletteItem.getBoundingClientRect();
+                    const x = itemRect.left - wsRect.left;
+                    const y = itemRect.top - wsRect.top;
+                    const standardRadius = state.STANDARD_RADIUS[state.selectedShape];
+                    
+                    const newPiece = createNewPiece(1, info.denominator, state.selectedShape, standardRadius, info.color, x, y, [{
+                        numerator: 1,
+                        denominator: info.denominator,
+                        color: info.color,
+                        radius: standardRadius,
+                        shape: state.selectedShape
+                    }]);
+                    target = state.activePieces.get(newPiece.id).element;
+                } else {
+                    // Seleccionar la pieza tocada
+                    selectPiece(target.id);
+                }
+
+                state.selectedElement = target;
+                ui.workspace.appendChild(state.selectedElement);
+
+                const pos = getMousePosition(evt);
+                const matrix = state.selectedElement.transform.baseVal.getItem(0).matrix;
+                state.offset.x = pos.x - matrix.e;
+                state.offset.y = pos.y - matrix.f;
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', endDrag);
+            }
+
+            function drag(evt) {
+                if (!state.selectedElement) return;
+                evt.preventDefault();
+
+                const pos = getMousePosition(evt);
+                state.selectedElement.setAttribute('transform', `translate(${pos.x - state.offset.x}, ${pos.y - state.offset.y})`);
+
+                // Verificar zona de basura
+                const trashRect = ui.trashZone.getBoundingClientRect();
+                const clientX = evt.clientX ?? evt.touches?.[0]?.clientX;
+                const clientY = evt.clientY ?? evt.touches?.[0]?.clientY;
+                const overTrash = clientX > trashRect.left && clientX < trashRect.right &&
+                                  clientY > trashRect.top && clientY < trashRect.bottom;
+                ui.trashZone.classList.toggle('active', overTrash);
+            }
+
+            function endDrag(evt) {
+                if (!state.selectedElement) return;
+
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', endDrag);
+
+                const trashRect = ui.trashZone.getBoundingClientRect();
+                const clientX = evt.clientX ?? evt.changedTouches?.[0]?.clientX;
+                const clientY = evt.clientY ?? evt.changedTouches?.[0]?.clientY;
+                const overTrash = clientX > trashRect.left && clientX < trashRect.right &&
+                                  clientY > trashRect.top && clientY < trashRect.bottom;
+
+                ui.trashZone.classList.remove('active');
+
+                if (overTrash) {
+                    deletePiece(state.selectedElement);
+                } else {
+                    dropPiece(state.selectedElement);
+                }
+
+                state.selectedElement = null;
+            }
+
+            // ==========================================
+            // UI SETUP
+            // ==========================================
+            function populatePalette() {
+                ui.palette.innerHTML = '';
+                const denominators = [2, 3, 4, 6, 8, 12];
+                const standardRadius = state.STANDARD_RADIUS[state.selectedShape];
+                // Radio más pequeño para la paleta visual
+                const paletteRadius = state.selectedShape === 'circle' ? 30 : 50;
+
+                denominators.forEach((den, i) => {
+                    const color = COLORS[i % COLORS.length];
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'palette-piece';
+                    wrapper.dataset.info = JSON.stringify({ denominator: den, radius: standardRadius, color });
+
+                    const svg = document.createElementNS(SVG_NS, 'svg');
+                    if (state.selectedShape === 'circle') {
+                        svg.setAttribute('viewBox', '0 0 60 60');
+                    } else {
+                        svg.setAttribute('viewBox', '0 0 100 25');
+                    }
+
+                    const pieceData = {
+                        id: `palette-${den}`,
+                        numerator: 1,
+                        denominator: den,
+                        shape: state.selectedShape,
+                        radius: paletteRadius,
+                        color
+                    };
+
+                    const element = createPieceElement(pieceData);
+                    svg.appendChild(element);
+                    wrapper.appendChild(svg);
+                    ui.palette.appendChild(wrapper);
+                });
+            }
+
+            function handleCreate() {
+                const divisions = parseInt(ui.divisionsInput.value);
+                if (isNaN(divisions) || divisions < 2 || divisions > 12) {
+                    showToast('Ingresa un número entre 2 y 12', 'error');
+                    return;
+                }
+
+                const standardRadius = state.STANDARD_RADIUS[state.selectedShape];
+                const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                const wsRect = ui.workspace.getBoundingClientRect();
+                const centerX = wsRect.width / 2;
+                const centerY = wsRect.height / 2;
+
+                for (let i = 0; i < divisions; i++) {
+                    const angle = (360 / divisions) * i;
+                    const pos = polarToCartesian(centerX, centerY, 80, angle);
+                    createNewPiece(1, divisions, state.selectedShape, standardRadius, color, pos.x - standardRadius / 2, pos.y - standardRadius / 2, [{
+                        numerator: 1,
+                        denominator: divisions,
+                        color,
+                        radius: standardRadius,
+                        shape: state.selectedShape
+                    }]);
+                }
+
+                showToast(`Creadas ${divisions} piezas de 1/${divisions}`, 'success');
+            }
+
+            // ==========================================
+            // EVENT LISTENERS
+            // ==========================================
+            function init() {
+                // Selector de forma
+                ui.shapeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        ui.shapeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        state.selectedShape = btn.dataset.shape;
+                        populatePalette();
+                    });
+                });
+
+                // Crear piezas
+                ui.createBtn.addEventListener('click', handleCreate);
+                ui.divisionsInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') handleCreate();
+                });
+
+                // Limpiar
+                ui.clearBtn.addEventListener('click', () => {
+                    if (state.activePieces.size === 0) {
+                        showToast('El área ya está vacía', 'error');
+                        return;
+                    }
+                    showConfirm('Limpiar área', '¿Eliminar todas las piezas del área de trabajo?', clearWorkspace);
+                });
+
+                // Drag & drop
+                ui.workspace.addEventListener('mousedown', startDrag);
+                ui.workspace.addEventListener('touchstart', startDrag, { passive: false });
+                ui.palette.addEventListener('mousedown', startDrag);
+                ui.palette.addEventListener('touchstart', startDrag, { passive: false });
+
+                // Botones de pieza seleccionada
+                ui.separateBtn.addEventListener('click', separateSelectedPiece);
+                ui.deleteSelectedBtn.addEventListener('click', deleteSelectedPiece);
+
+                // Problemas
+                ui.newProblemBtn.addEventListener('click', loadNewProblem);
+                ui.hintBtn.addEventListener('click', showHint);
+                ui.checkBtn.addEventListener('click', checkAnswer);
+
+                // Modal de ayuda
+                ui.helpBtn.addEventListener('click', () => ui.helpModal.classList.remove('hidden'));
+                ui.helpModalClose.addEventListener('click', () => ui.helpModal.classList.add('hidden'));
+                ui.helpModalOk.addEventListener('click', () => ui.helpModal.classList.add('hidden'));
+
+                // Inicializar
+                populatePalette();
+                loadNewProblem();
+
+                // Mostrar tutorial la primera vez
+                if (!localStorage.getItem('fracciones-tutorial-seen')) {
+                    ui.helpModal.classList.remove('hidden');
+                    localStorage.setItem('fracciones-tutorial-seen', 'true');
+                }
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
